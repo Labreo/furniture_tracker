@@ -18,16 +18,27 @@ if ($conn->connect_error) {
 
 // Update repair status if a form is submitted
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $repair_id = $_POST['repair_id'];
-    $status = $_POST['status'];
-    $technician = $_POST['technician'];
-    $cost = $_POST['cost'];
+    if (isset($_POST['update'])) {
+        $repair_id = $_POST['repair_id'];
+        $status = $_POST['status'];
+        $technician = $_POST['technician'];
+        $cost = $_POST['cost'];
 
-    $update_sql = "UPDATE repairs SET status='$status', technician='$technician', cost='$cost' WHERE id='$repair_id'";
-    if ($conn->query($update_sql) === TRUE) {
-        echo "Repair status updated successfully!";
-    } else {
-        echo "Error: " . $update_sql . "<br>" . $conn->error;
+        $update_sql = "UPDATE repairs SET status='$status', technician='$technician', cost='$cost' WHERE id='$repair_id'";
+        if ($conn->query($update_sql) === TRUE) {
+            echo "Repair status updated successfully!";
+        } else {
+            echo "Error: " . $update_sql . "<br>" . $conn->error;
+        }
+    } elseif (isset($_POST['delete'])) {
+        $repair_id = $_POST['repair_id'];
+
+        $delete_sql = "DELETE FROM repairs WHERE id='$repair_id'";
+        if ($conn->query($delete_sql) === TRUE) {
+            echo "Repair request deleted successfully!";
+        } else {
+            echo "Error: " . $delete_sql . "<br>" . $conn->error;
+        }
     }
 }
 
@@ -82,7 +93,8 @@ $result = $conn->query($sql);
                 echo "<input type='text' name='technician' value='" . htmlspecialchars($row["technician"]) . "'><br>";
                 echo "<label for='cost'>Cost:</label>";
                 echo "<input type='number' name='cost' step='0.01' value='" . htmlspecialchars($row["cost"]) . "'><br>";
-                echo "<input type='submit' value='Update'>";
+                echo "<input type='submit' name='update' value='Update'>";
+                echo "<input type='submit' name='delete' value='Delete' style='background-color: red; color: white;'>";
                 echo "</form>";
 
                 echo "</div>";

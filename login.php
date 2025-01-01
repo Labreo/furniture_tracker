@@ -12,19 +12,32 @@ if ($conn->connect_error) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $username = $_POST['username'];
-    $password = $_POST['password'];
+    if (isset($_POST['login'])) {
+        $username = $_POST['username'];
+        $password = $_POST['password'];
 
-    $sql = "SELECT * FROM users WHERE username='$username' AND password='$password'";
-    $result = $conn->query($sql);
+        $sql = "SELECT * FROM users WHERE username='$username' AND password='$password'";
+        $result = $conn->query($sql);
 
-    if ($result->num_rows > 0) {
-        $row = $result->fetch_assoc();
-        $_SESSION['role'] = $row['role'];
-        $_SESSION['username'] = $row['username'];
-        header("Location: index.php");
-    } else {
-        echo "Invalid login credentials!";
+        if ($result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            $_SESSION['role'] = $row['role'];
+            $_SESSION['username'] = $row['username'];
+            header("Location: index.php");
+        } else {
+            echo "Invalid login credentials!";
+        }
+    } elseif (isset($_POST['register'])) {
+        $username = $_POST['new_username'];
+        $password = $_POST['new_password'];
+        $role = 'user'; // Default role for new users
+
+        $sql = "INSERT INTO users (username, password, role) VALUES ('$username', '$password', '$role')";
+        if ($conn->query($sql) === TRUE) {
+            echo "Account created successfully! You can now log in.";
+        } else {
+            echo "Error: " . $sql . "<br>" . $conn->error;
+        }
     }
 }
 ?>
@@ -40,15 +53,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <header>
         <h1>Login</h1>
     </header>
+    <h2>Login</h2>
     <form method="POST" action="">
-        <label for="username">Username:</label><br>
-        <input type="text" id="username" name="username" required><br><br>
-        <label for="password">Password:</label><br>
-        <input type="password" id="password" name="password" required><br><br>
-        <input type="submit" value="Login">
+        <label for="username">Username:</label>
+        <input type="text" name="username" required><br>
+        <label for="password">Password:</label>
+        <input type="password" name="password" required><br>
+        <input type="submit" name="login" value="Login">
     </form>
-    <footer>
+
+    <h2>Register</h2>
+    <form method="POST" action="">
+        <label for="new_username">Username:</label>
+        <input type="text" name="new_username" required><br>
+        <label for="new_password">Password:</label>
+        <input type="password" name="new_password" required><br>
+        <input type="submit" name="register" value="Register">
+    </form>
+   
         <p>&copy; 2024 College Furniture Tracker</p>
-    </footer>
+    
 </body>
 </html>
